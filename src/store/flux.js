@@ -1,49 +1,49 @@
 const getState = ({ getStore, getActions, setStore }) => {
-
   return {
     store: {
-      username: 'pancho',//Cambiar acá con el nombre de usuario que quieran utilizar
+      username: "Fernando",
       contactList: [],
-      apiUrlContactList: 'https://playground.4geeks.com/contact'
+      apiUrlContactList: "https://playground.4geeks.com/contact",
     },
     actions: {
-      createAgenda: async() => {
+      createAgenda: async () => {
         const { username, apiUrlContactList } = getStore();
-        //Otra forma de obtener los valores del store
-        //const username = getStore().username;
-        //const apiUrlContactList = getStore().apiUrlContactList;
 
         try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}`, {
-            method: 'POST'
-          });
+          const response = await fetch(
+            `${apiUrlContactList}/agendas/${username}`,
+            {
+              method: "POST",
+            }
+          );
 
           if (response.status === 201 || response.status === 400) {
-            console.log('Agenda creada con éxito o ya existe la agenda!!!');
+            console.log("Agenda creada con éxito o ya existe la agenda!!!");
             return true;
-          }
-          else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
+          } else {
+            console.log("Error: ", response.status, response.statusText);
+
             return false;
           }
         } catch (error) {
           console.log(error);
         }
       },
-      getContactList: async() => {
+      getContactList: async () => {
         const { username, apiUrlContactList } = getStore();
 
         try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts`);
+          const response = await fetch(
+            `${apiUrlContactList}/agendas/${username}/contacts`
+          );
           const data = await response.json(response);
-
+          console.log("Contactos de la API:", data);
           if (response.status == 404) {
             getActions().createAgenda();
           } else {
             if (response.ok) {
               setStore({
-                contactList: data.contacts
+                contactList: data.contacts,
               });
             }
           }
@@ -51,46 +51,57 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log(error);
         }
       },
+
+      logHomeRender: () => {
+        console.log("Volviste al Home");
+      },
       createContact: async (contact) => {
         const { username, apiUrlContactList } = getStore();
 
         try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(contact)
-          })
+          const response = await fetch(
+            `${apiUrlContactList}/agendas/${username}/contacts`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(contact),
+            }
+          );
 
           if (response.ok) {
-            console.log('Contacto guardado con éxito!');
+            console.log("Contacto guardado con éxito!");
             await getActions().getContactList();
             return true;
           } else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
+            console.log("Error: ", response.status, response.statusText);
+
             return false;
           }
         } catch (error) {
           console.log(error);
+          return false;
         }
       },
       deleteContact: async (id) => {
         const { username, apiUrlContactList } = getStore();
 
         try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts/${id}`, {
-            method: 'DELETE'
-          });
+          const response = await fetch(
+            `${apiUrlContactList}/agendas/${username}/contacts/${id}`,
+            {
+              method: "DELETE",
+            }
+          );
 
           if (response.ok) {
-            console.log('Contacto eliminado con éxito!');
+            console.log("Contacto eliminado con éxito!");
             getActions().getContactList();
             return true;
           } else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
+            console.log("Error: ", response.status, response.statusText);
+
             return false;
           }
         } catch (error) {
@@ -101,27 +112,32 @@ const getState = ({ getStore, getActions, setStore }) => {
         const { username, apiUrlContactList } = getStore();
 
         try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts/${id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(contact)
-          });
+          const response = await fetch(
+            `${apiUrlContactList}/agendas/${username}/contacts/${id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(contact),
+            }
+          );
 
           if (response.ok) {
-            console.log('Datos de contacto actualizados con éxito!');
-            getActions().getContactList();
+            console.log("Datos de contacto actualizados con éxito!");
+            await getActions().getContactList();
+            return true;
           } else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
+            console.log("Error: ", response.status, response.statusText);
+
             return false;
           }
         } catch (error) {
           console.log(error);
+          return false;
         }
-      }
-    }
+      },
+    },
   };
 };
 
