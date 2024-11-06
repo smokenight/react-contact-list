@@ -1,127 +1,66 @@
 const getState = ({ getStore, getActions, setStore }) => {
-
   return {
-    store: {
-      username: 'pancho',//Cambiar acá con el nombre de usuario que quieran utilizar
-      contactList: [],
-      apiUrlContactList: 'https://playground.4geeks.com/contact'
-    },
-    actions: {
-      createAgenda: async() => {
-        const { username, apiUrlContactList } = getStore();
-        //Otra forma de obtener los valores del store
-        //const username = getStore().username;
-        //const apiUrlContactList = getStore().apiUrlContactList;
-
-        try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}`, {
-            method: 'POST'
-          });
-
-          if (response.status === 201 || response.status === 400) {
-            console.log('Agenda creada con éxito o ya existe la agenda!!!');
-            return true;
-          }
-          else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
-            return false;
-          }
-        } catch (error) {
-          console.log(error);
-        }
+      store: {
+          demo: [
+              {
+                  title: "FIRST",
+                  background: "white",
+                  initial: "white"
+              },
+              {
+                  title: "SECOND",
+                  background: "white",
+                  initial: "white"
+              }
+          ],
+          favorites: [],
       },
-      getContactList: async() => {
-        const { username, apiUrlContactList } = getStore();
+      actions: {
+          
+          exampleFunction: () => {
+              getActions().changeColor(0, "green");
+          },
+          loadSomeData: () => {
+          
+          },
+          toggleFavorite: (item) => {
+              // Validate item structure
+              if (!item || !item.uid || !item.name || !item.type) {
+                  console.error("Invalid item passed to toggleFavorite", item);
+                  return;
+              }
 
-        try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts`);
-          const data = await response.json(response);
+              const store = getStore();
+              const favorites = store.favorites;
 
-          if (response.status == 404) {
-            getActions().createAgenda();
-          } else {
-            if (response.ok) {
-              setStore({
-                contactList: data.contacts
+            
+              console.log("Current Favorites:", favorites);
+              console.log("Item to Toggle:", item);
+
+            
+              const exists = favorites.some(fav => fav.uid === item.uid && fav.type === item.type);
+
+              
+              const newFavorites = exists
+                  ? favorites.filter(fav => !(fav.uid === item.uid && fav.type === item.type))
+                  : [...favorites, { uid: item.uid, name: item.name, type: item.type }];
+
+              
+              console.log("Updated Favorites:", newFavorites);
+
+              
+              setStore({ favorites: newFavorites });
+          },
+          changeColor: (index, color) => {
+              const store = getStore();
+              const demo = store.demo.map((elm, i) => {
+                  if (i === index) elm.background = color;
+                  return elm;
               });
-            }
+
+              setStore({ demo: demo });
           }
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      createContact: async (contact) => {
-        const { username, apiUrlContactList } = getStore();
-
-        try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(contact)
-          })
-
-          if (response.ok) {
-            console.log('Contacto guardado con éxito!');
-            await getActions().getContactList();
-            return true;
-          } else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
-            return false;
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      deleteContact: async (id) => {
-        const { username, apiUrlContactList } = getStore();
-
-        try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts/${id}`, {
-            method: 'DELETE'
-          });
-
-          if (response.ok) {
-            console.log('Contacto eliminado con éxito!');
-            getActions().getContactList();
-            return true;
-          } else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
-            return false;
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      updateContact: async (contact, id) => {
-        const { username, apiUrlContactList } = getStore();
-
-        try {
-          const response = await fetch(`${apiUrlContactList}/agendas/${username}/contacts/${id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(contact)
-          });
-
-          if (response.ok) {
-            console.log('Datos de contacto actualizados con éxito!');
-            getActions().getContactList();
-          } else {
-            console.log('Error: ', response.status, response.statusText);
-            //return { error: { status: response.status, statusText: response.statusText }};
-            return false;
-          }
-        } catch (error) {
-          console.log(error);
-        }
       }
-    }
   };
 };
 
